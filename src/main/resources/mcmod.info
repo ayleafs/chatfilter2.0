@@ -1,0 +1,12 @@
+[
+  {
+    "modid": "cf",
+    "name": "ChatFilter",
+    "description": "A newer version of luaq's ChatFilter mod.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "authorList": [
+      "leafs"
+    ]
+  }
+]
