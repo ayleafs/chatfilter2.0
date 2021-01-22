@@ -1,5 +1,7 @@
 package me.leafs.cf.commands;
 
+import me.leafs.cf.gui.GuiFilterHome;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
@@ -28,12 +30,15 @@ public class OpenGui implements ICommand {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
-        //
+        // register a tick event to open a gui
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
+        Minecraft.getMinecraft().displayGuiScreen(new GuiFilterHome());
 
+        // no more ticking
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 

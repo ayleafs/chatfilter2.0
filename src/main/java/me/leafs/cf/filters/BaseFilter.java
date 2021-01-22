@@ -1,22 +1,28 @@
 package me.leafs.cf.filters;
 
 import lombok.Data;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.leafs.cf.ChatFilter;
 import me.leafs.cf.filters.actions.FilterAction;
+import me.leafs.cf.utils.ChatUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.EnumChatFormatting;
 
+import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import static me.leafs.cf.utils.BitMask.isAnd;
 
 @Data
 @RequiredArgsConstructor
 public class BaseFilter {
-    private String pattern;
-    private String replacement;
+    @NonNull private String pattern;
+    @NonNull private String replacement;
+
+    private final UUID id;
 
     private FilterStyle style = FilterStyle.REGEX;
     private FilterAction action = null;
@@ -49,20 +55,26 @@ public class BaseFilter {
     }
 
     public String process(String input) {
+        input = EnumChatFormatting.getTextWithoutFormattingCodes(input);
         String output = input;
 
         // check if the output is supposed to be hidden
         // if it isn't then replace using regex
         if (isAnd(flags, Flag.HIDE)) {
             output = "";
-        } else if (isAnd(flags, Flag.REPLACE) && replacement != null && replacement.isEmpty()) {
+        } else if (isAnd(flags, Flag.REPLACE) && replacement != null && !replacement.isEmpty()) {
             // do regex replacement even if not on regex detection, could create interesting outcomes
-            output = toPattern().matcher(output).replaceAll(replacement);
+            try {
+                output = toPattern().matcher(output).replaceAll(ChatUtils.color(replacement));
+            } catch (PatternSyntaxException e) {
+                e.printStackTrace();
+                output = replacement;
+            }
         }
 
         // run an action if there's one to run (and enabled)
         if (isAnd(flags, Flag.ACTION) && action != null) {
-            action.performAction(toPattern().matcher(input));
+            ChatFilter.instance.getActionQueue().queueAction(this, style == FilterStyle.REGEX ? toPattern().matcher(input) : null);
         }
 
         return output;
@@ -74,12 +86,21 @@ public class BaseFilter {
                 .reduce((total, i) -> total | i)
                 .orElse(Pattern.CASE_INSENSITIVE);
 
-        return Pattern.compile(pattern, flags);
+        Pattern output;
+        try {
+            output = Pattern.compile(pattern, flags);
+        } catch (PatternSyntaxException e) {
+            e.printStackTrace();
+            // easy fix
+            output = Pattern.compile(Pattern.quote(pattern));
+        }
+
+        return output;
     }
 
     public static class Flag {
-        public static final int REPLACE = 0x01;
-        public static final int HIDE    = 0x02;
-        public static final int ACTION  = 0x04;
+        public static final int REPLACE = 0x1;
+        public static final int HIDE    = 0x2;
+        public static final int ACTION  = 0x4;
     }
 }

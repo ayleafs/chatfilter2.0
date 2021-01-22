@@ -1,4 +1,22 @@
-chatfilter.control.title=ChatFilter2.0
+cf.title=ChatFilter 2.0
 
-chatfilter.control.quick=Quick Send
-chatfilter.control.cancel=Cancel Action
+cf.control.quick=Quick Send
+cf.control.cancel=Cancel Action
+
+cf.confirm=§7Running action in §d%02ds§7. §d%s§7 to run, §c%s§7 to cancel.
+
+cf.gui.done=Done
+
+cf.gui.home.new=New Filter
+cf.gui.home.manage=Manage Existing
+
+cf.gui.list.title=Filter List
+
+cf.gui.editing.title=Editing Filter
+cf.gui.editing.replace=Replacements
+cf.gui.editing.matcher=Pattern
+cf.gui.editing.actions=Chat Action
+
+cf.gui.editing.preconfirm=Pre-Confirm
+cf.gui.editing.serveronly=This Server
+cf.gui.editing.hide=Hide

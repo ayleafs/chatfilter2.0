@@ -5,7 +5,9 @@ import me.leafs.cf.commands.OpenGui;
 import me.leafs.cf.config.ChatFilterConfig;
 import me.leafs.cf.config.ConfigHandler;
 import me.leafs.cf.events.FilterHandler;
+import me.leafs.cf.events.KeybindHandler;
 import me.leafs.cf.events.ScreenRenderer;
+import me.leafs.cf.filters.actions.ActionQueue;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,15 +28,18 @@ public class ChatFilter {
     public static ChatFilter instance;
 
     @Getter private ConfigHandler handler;
+
+    @Getter private ActionQueue actionQueue;
     @Getter private ChatFilterConfig config;
 
-    @Getter private final KeyBinding quickSend  = new KeyBinding("chatfilter.control.quick", Keyboard.KEY_RETURN, "chatfilter.control.title");
-    @Getter private final KeyBinding cancelSend = new KeyBinding("chatfilter.control.cancel", Keyboard.KEY_BACK, "chatfilter.control.title");
+    @Getter private final KeyBinding quickSend  = new KeyBinding("cf.control.quick", Keyboard.KEY_RETURN, "cf.title");
+    @Getter private final KeyBinding cancelSend = new KeyBinding("cf.control.cancel", Keyboard.KEY_BACK, "cf.title");
+    @Getter private FilterHandler filterHandler;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         // make and read the config file
-        handler = new ConfigHandler(event.getModConfigurationDirectory());
+        handler = new ConfigHandler(event.getSuggestedConfigurationFile());
         config = handler.readConfig();
 
         // add a shutdown hook to save on the game exit
@@ -43,6 +48,9 @@ public class ChatFilter {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        filterHandler = new FilterHandler();
+        actionQueue = new ActionQueue();
+
         registerEvents();
 
         // register client command
@@ -56,7 +64,8 @@ public class ChatFilter {
     private void registerEvents() {
         EventBus bus = MinecraftForge.EVENT_BUS;
 
-        bus.register(new FilterHandler());
+        bus.register(filterHandler);
         bus.register(new ScreenRenderer());
+        bus.register(new KeybindHandler());
     }
 }
