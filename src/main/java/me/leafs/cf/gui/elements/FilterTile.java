@@ -10,8 +10,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 
-import static me.leafs.cf.utils.ChatFilterGuis.BTN_H;
-import static me.leafs.cf.utils.ChatFilterGuis.BTN_W;
+import static me.leafs.cf.utils.ChatFilterGuis.*;
 
 @Getter
 @RequiredArgsConstructor
@@ -32,7 +31,12 @@ public class FilterTile {
         Gui.drawRect(x, y, r, b, ChatFilterGuis.HL_COLOR.getRGB());
 
         FontRenderer renderer = mc.fontRendererObj;
+        String server = filter.getServer();
+
         renderer.drawString(filter.getPattern(), x + 5, y + 5, 0xffffff);
+        if (server != null) {
+            renderer.drawString(server, x + 5, y + 5 + renderer.FONT_HEIGHT, TEXT_LOW.getRGB());
+        }
 
         // draw the buttons
         edit.xPosition = r - edit.width - delete.width - 5;
